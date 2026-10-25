@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE V14.2 - UNIVERSAL FORCE GUI ]] --
+-- [[ CYBER ENGINE V15 - FULL FIXED & STABLE ]] --
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -6,18 +6,34 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Player = Players.LocalPlayer
 
--- Pastikan PlayerGui siap
+-- Tunggu hingga PlayerGui siap
 local PlayerGui = Player:WaitForChild("PlayerGui", 10)
-if not PlayerGui then return end
 
--- Hapus GUI lama jika ada
+-- [ 1. SAFE ANTI-KICK BYPASS ] --
 pcall(function()
-    if PlayerGui:FindFirstChild("CyberHubV14") then 
-        PlayerGui.CyberHubV14:Destroy() 
+    local mt = getrawmetatable(game)
+    if mt then
+        setreadonly(mt, false)
+        local oldNamecall = mt.__namecall
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if method and method:lower() == "kick" and self == Player then
+                return nil
+            end
+            return oldNamecall(self, ...)
+        end)
+        setreadonly(mt, true)
     end
 end)
 
--- Variabel Status
+-- Hapus GUI lama jika sudah ada
+pcall(function()
+    if PlayerGui:FindFirstChild("CyberHubV15") then 
+        PlayerGui.CyberHubV15:Destroy() 
+    end
+end)
+
+-- Status Fitur & Variabel
 local isAutoPumpkin = false
 local isAutoEgg = false
 local isAutoCoin = false
@@ -31,11 +47,26 @@ local walkSpeedVal = 16
 local swimSpeedVal = 16
 local fishSpeedVal = 50
 local selectedEggRarity = "all" 
+
 local farmedCache = {}
 
--- [ 1. BUAT SCREEN GUI LANGSUNG KE PLAYERGUI ] --
+-- Auto Memory Garbage Collector
+task.spawn(function()
+    while task.wait(30) do
+        pcall(function()
+            local now = tick()
+            for obj, timestamp in pairs(farmedCache) do
+                if now - timestamp > 15 then
+                    farmedCache[obj] = nil
+                end
+            end
+        end)
+    end
+end)
+
+-- [ 2. GUI CREATION (DIRECT PLAYERGUI) ] --
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CyberHubV14"
+ScreenGui.Name = "CyberHubV15"
 ScreenGui.Parent = PlayerGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
@@ -52,7 +83,7 @@ local UIStroke = Instance.new("UIStroke", MainFrame)
 UIStroke.Color = Color3.fromRGB(0, 255, 170)
 UIStroke.Thickness = 1.5
 
--- Header
+-- Header Top Bar
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 35)
 Header.BackgroundColor3 = Color3.fromRGB(20, 22, 32)
@@ -62,7 +93,7 @@ local HeaderTitle = Instance.new("TextLabel", Header)
 HeaderTitle.Size = UDim2.new(1, -80, 1, 0)
 HeaderTitle.Position = UDim2.new(0, 12, 0, 0)
 HeaderTitle.BackgroundTransparency = 1
-HeaderTitle.Text = "⚡ FISH RIDERS // V14.2 UNIVERSAL"
+HeaderTitle.Text = "⚡ FISH RIDERS // V15 FULL FIXED"
 HeaderTitle.TextColor3 = Color3.fromRGB(0, 255, 170)
 HeaderTitle.TextSize = 11
 HeaderTitle.Font = Enum.Font.GothamBold
@@ -120,7 +151,7 @@ OpenBtn.MouseButton1Click:Connect(function()
     OpenBtn.Visible = false
 end)
 
--- [ 2. KOLOM KIRI & KANAN ] --
+-- [ 3. CONTAINERS MENYAMPING ] --
 local LeftCol = Instance.new("ScrollingFrame", MainFrame)
 LeftCol.Position = UDim2.new(0, 8, 0, 42)
 LeftCol.Size = UDim2.new(0.5, -12, 1, -50)
@@ -181,86 +212,3 @@ local function addToggle(parent, text, yPos, callback)
             Badge.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
             Stroke.Color = Color3.fromRGB(0, 255, 170)
         else
-            Badge.Text = "OFF"
-            Badge.TextColor3 = Color3.fromRGB(255, 70, 90)
-            Badge.BackgroundColor3 = Color3.fromRGB(40, 20, 30)
-            Stroke.Color = Color3.fromRGB(40, 45, 70)
-        end
-        callback(active)
-    end)
-end
-
--- Kolom Kiri
-addSection(LeftCol, "✦ AUTO FARM & EVENT", 2)
-addToggle(LeftCol, "🎃 Auto Pumpkin", 20, function(s) isAutoPumpkin = s end)
-addToggle(LeftCol, "🥚 Auto Eggs (Filtered)", 52, function(s) isAutoEgg = s end)
-addToggle(LeftCol, "💰 Auto Coins/Gems", 84, function(s) isAutoCoin = s end)
-
-addSection(LeftCol, "✦ EGG RARITY FILTER", 120)
-
-local rarities = {"All", "Common", "Rare", "Epic", "Legendary", "Mythic"}
-local currentRarityY = 138
-
-for _, rarityName in ipairs(rarities) do
-    local RarityBtn = Instance.new("TextButton", LeftCol)
-    RarityBtn.Position = UDim2.new(0, 0, 0, currentRarityY)
-    RarityBtn.Size = UDim2.new(1, 0, 0, 24)
-    RarityBtn.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
-    RarityBtn.Text = "  🎯 Rarity: " .. rarityName
-    RarityBtn.TextColor3 = Color3.fromRGB(180, 190, 210)
-    RarityBtn.TextSize = 9
-    RarityBtn.Font = Enum.Font.GothamBold
-    RarityBtn.TextXAlignment = Enum.TextXAlignment.Left
-    Instance.new("UICorner", RarityBtn).CornerRadius = UDim.new(0, 4)
-    local RStroke = Instance.new("UIStroke", RarityBtn)
-    RStroke.Color = Color3.fromRGB(40, 45, 70)
-
-    if rarityName:lower() == selectedEggRarity then
-        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
-        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
-        RStroke.Color = Color3.fromRGB(0, 255, 170)
-    end
-
-    RarityBtn.MouseButton1Click:Connect(function()
-        selectedEggRarity = rarityName:lower()
-        for _, child in pairs(LeftCol:GetChildren()) do
-            if child:IsA("TextButton") and child.Text:find("Rarity:") then
-                child.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
-                child.TextColor3 = Color3.fromRGB(180, 190, 210)
-                local st = child:FindFirstChildOfClass("UIStroke")
-                if st then st.Color = Color3.fromRGB(40, 45, 70) end
-            end
-        end
-        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
-        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
-        RStroke.Color = Color3.fromRGB(0, 255, 170)
-    end)
-
-    currentRarityY = currentRarityY + 28
-end
-
-addSection(LeftCol, "✦ VISUAL & WORLD", 312)
-addToggle(LeftCol, "👁️ ESP Pumpkin/Egg", 330, function(s) isESPActive = s end)
-addToggle(LeftCol, "🔭 Infinite Zoom", 362, function(s) isInfZoom = s end)
-
--- Kolom Kanan
-addSection(RightCol, "✦ PLAYER & ENHANCE", 2)
-addToggle(RightCol, "🛡️ God Mode", 20, function(s) isGodMode = s end)
-addToggle(RightCol, "🚀 Inf Jump", 52, function(s) isInfJump = s end)
-addToggle(RightCol, "👻 Noclip", 84, function(s) isNoclip = s end)
-
-local SafeBtn = Instance.new("TextButton", RightCol)
-SafeBtn.Position = UDim2.new(0, 0, 0, 116)
-SafeBtn.Size = UDim2.new(1, 0, 0, 28)
-SafeBtn.BackgroundColor3 = Color3.fromRGB(180, 100, 20)
-SafeBtn.Text = "🏠 Safe Zone Teleport"
-SafeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SafeBtn.TextSize = 10
-SafeBtn.Font = Enum.Font.GothamBold
-Instance.new("UICorner", SafeBtn).CornerRadius = UDim.new(0, 5)
-
-SafeBtn.MouseButton1Click:Connect(function()
-    pcall(function()
-        local char = Player.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CFrame = CFrame.new(0, 1
