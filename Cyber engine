@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE V10 - 100% WORK EGG & ITEM FARMING ]] --
+-- [[ CYBER ENGINE V11 - REAL EGG COLLECTION & ANTI-BAN ]] --
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -7,7 +7,7 @@ local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local Player = Players.LocalPlayer
 
--- [ 1. ANTI-KICK BYPASS ] --
+-- [ 1. STRONG ANTI-KICK & ANTI-BAN BYPASS ] --
 pcall(function()
     local mt = getrawmetatable(game)
     setreadonly(mt, false)
@@ -30,7 +30,7 @@ pcall(function()
 end)
 
 pcall(function()
-    if TargetParent:FindFirstChild("CyberHubV10") then TargetParent.CyberHubV10:Destroy() end
+    if TargetParent:FindFirstChild("CyberHubV11") then TargetParent.CyberHubV11:Destroy() end
 end)
 
 -- Status Fitur
@@ -47,9 +47,12 @@ local walkSpeedVal = 16
 local swimSpeedVal = 16
 local fishSpeedVal = 50
 
+-- Tabel Penyimpanan Objek yang Sudah Diambil (Mencegah Infinite Teleport)
+local farmedCache = {}
+
 -- [ 3. TAMPILAN GUI KOMPAK MENYAMPING ] --
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CyberHubV10"
+ScreenGui.Name = "CyberHubV11"
 ScreenGui.Parent = TargetParent
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
@@ -76,7 +79,7 @@ local HeaderTitle = Instance.new("TextLabel", Header)
 HeaderTitle.Size = UDim2.new(1, -80, 1, 0)
 HeaderTitle.Position = UDim2.new(0, 12, 0, 0)
 HeaderTitle.BackgroundTransparency = 1
-HeaderTitle.Text = "⚡ FISH RIDERS // V10 100% EGG WORK"
+HeaderTitle.Text = "⚡ FISH RIDERS // V11 SAFE FARM"
 HeaderTitle.TextColor3 = Color3.fromRGB(0, 255, 170)
 HeaderTitle.TextSize = 11
 HeaderTitle.Font = Enum.Font.GothamBold
@@ -207,7 +210,7 @@ end
 -- Isi Kolom Kiri
 addSection(LeftCol, "✦ AUTO FARM & EVENT", 2)
 addToggle(LeftCol, "🎃 Auto Pumpkin", 20, function(s) isAutoPumpkin = s end)
-addToggle(LeftCol, "🥚 Auto Eggs (100% Work)", 52, function(s) isAutoEgg = s end)
+addToggle(LeftCol, "🥚 Auto Eggs (Fixed)", 52, function(s) isAutoEgg = s end)
 addToggle(LeftCol, "💰 Auto Coins/Gems", 84, function(s) isAutoCoin = s end)
 
 addSection(LeftCol, "✦ VISUAL", 120)
@@ -274,9 +277,9 @@ addSpeedInput(RightCol, "Walk (Cth: 32)", 168, function(v) walkSpeedVal = v end)
 addSpeedInput(RightCol, "Swim (Cth: 50)", 196, function(v) swimSpeedVal = v end)
 addSpeedInput(RightCol, "Fish (Cth: 100)", 224, function(v) fishSpeedVal = v end)
 
--- [ 5. 100% WORK EGG & ITEM FARMING LOGIC ] --
+-- [ 5. ANTI-BAN EGG & ITEM FARMING DENGAN TOUCH INTEREST ] --
 task.spawn(function()
-    while task.wait(0.3) do
+    while task.wait(0.8) do -- Diperlambat agar tidak terdeteksi anti-cheat ban
         pcall(function()
             if not isAutoPumpkin and not isAutoEgg and not isAutoCoin then return end
             local char = Player.Character
@@ -284,7 +287,6 @@ task.spawn(function()
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if not hrp then return end
             
-            -- Menggunakan GetDescendants agar mendeteksi telur di dalam folder/model sekecil apa pun di map
             for _, obj in pairs(Workspace:GetDescendants()) do
                 pcall(function()
                     if obj and (obj:IsA("BasePart") or obj:IsA("Model")) then
@@ -293,17 +295,28 @@ task.spawn(function()
                         
                         if targetPart and targetPart:IsA("BasePart") then
                             local match = false
-                            if isAutoPumpkin and (name:find("pumpkin") or name:find("labu") or name:find("event")) then 
-                                match = true
-                            elseif isAutoEgg and (name:find("egg") or name:find("telur") or name:find("nest")) then 
-                                match = true
-                            elseif isAutoCoin and (name:find("coin") or name:find("gem") or name:find("cash") or name:find("gold")) then 
-                                match = true 
-                            end
+                            if isAutoPumpkin and (name:find("pumpkin") or name:find("labu") or name:find("event")) then match = true
+                            elseif isAutoEgg and (name:find("egg") or name:find("telur") or name:find("nest")) then match = true
+                            elseif isAutoCoin and (name:find("coin") or name:find("gem") or name:find("cash") or name:find("gold")) then match = true end
                             
                             if match then
-                                hrp.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
-                                task.wait(0.15)
+                                -- Cek apakah objek sudah pernah diambil baru-baru ini (mencegah infinite loop)
+                                if not farmedCache[targetPart] or (tick() - farmedCache[targetPart] > 4) then
+                                    farmedCache[targetPart] = tick()
+                                    
+                                    -- Teleport mendekati item
+                                    hrp.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
+                                    task.wait(0.2)
+                                    
+                                    -- Simulasi sentuhan agar game menghitung item berhasil diambil
+                                    pcall(function()
+                                        firetouchinterest(hrp, targetPart, 0)
+                                        task.wait(0.05)
+                                        firetouchinterest(hrp, targetPart, 1)
+                                    end)
+                                    
+                                    task.wait(0.3)
+                                end
                             end
                         end
                     end
@@ -315,7 +328,7 @@ end)
 
 -- ESP Optimal
 task.spawn(function()
-    while task.wait(3) do
+    while task.wait(4) do
         pcall(function()
             for _, obj in pairs(Workspace:GetDescendants()) do
                 pcall(function()
@@ -388,4 +401,4 @@ UserInputService.JumpRequest:Connect(function()
     end)
 end)
 
-print("⚡ Cyber Hub V10 Egg & Item Farmer Loaded 100% Work!")
+print("⚡ Cyber Hub V11 Anti-Ban & Touch Interest Loaded!")
