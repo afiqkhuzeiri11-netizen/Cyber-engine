@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE V6.1 - GITHUB ULTIMATE HUB ]] --
+-- [[ CYBER ENGINE V10 - 100% WORK EGG & ITEM FARMING ]] --
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -22,23 +22,18 @@ pcall(function()
     setreadonly(mt, true)
 end)
 
--- [ 2. MULTI-PATH GUI PARENTING ] --
+-- [ 2. GUI PARENTING ] --
 local TargetParent = CoreGui
 pcall(function()
-    if gethui then
-        TargetParent = gethui()
-    elseif Player:FindFirstChild("PlayerGui") then
-        TargetParent = Player.PlayerGui
-    end
+    if gethui then TargetParent = gethui()
+    elseif Player:FindFirstChild("PlayerGui") then TargetParent = Player.PlayerGui end
 end)
 
 pcall(function()
-    if TargetParent:FindFirstChild("CyberHubV6") then
-        TargetParent.CyberHubV6:Destroy()
-    end
+    if TargetParent:FindFirstChild("CyberHubV10") then TargetParent.CyberHubV10:Destroy() end
 end)
 
--- Status & Variabel Fitur
+-- Status Fitur
 local isAutoPumpkin = false
 local isAutoEgg = false
 local isAutoCoin = false
@@ -52,109 +47,144 @@ local walkSpeedVal = 16
 local swimSpeedVal = 16
 local fishSpeedVal = 50
 
--- [ 3. TAMPILAN GUI UTAMA ] --
+-- [ 3. TAMPILAN GUI KOMPAK MENYAMPING ] --
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CyberHubV6"
+ScreenGui.Name = "CyberHubV10"
 ScreenGui.Parent = TargetParent
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Parent = ScreenGui
+local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 13, 20)
-MainFrame.Position = UDim2.new(0.5, -170, 0.12, 0)
-MainFrame.Size = UDim2.new(0, 340, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -240, 0.2, 0)
+MainFrame.Size = UDim2.new(0, 480, 0, 310)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Parent = MainFrame
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+local UIStroke = Instance.new("UIStroke", MainFrame)
 UIStroke.Color = Color3.fromRGB(0, 255, 170)
-UIStroke.Thickness = 1.8
+UIStroke.Thickness = 1.5
 
--- Header Top Bar
-local Header = Instance.new("Frame")
-Header.Parent = MainFrame
-Header.Size = UDim2.new(1, 0, 0, 45)
+-- Header
+local Header = Instance.new("Frame", MainFrame)
+Header.Size = UDim2.new(1, 0, 0, 35)
 Header.BackgroundColor3 = Color3.fromRGB(20, 22, 32)
-Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 14)
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 12)
 
-local HeaderTitle = Instance.new("TextLabel")
-HeaderTitle.Parent = Header
-HeaderTitle.Size = UDim2.new(1, -45, 1, 0)
-HeaderTitle.Position = UDim2.new(0, 15, 0, 0)
+local HeaderTitle = Instance.new("TextLabel", Header)
+HeaderTitle.Size = UDim2.new(1, -80, 1, 0)
+HeaderTitle.Position = UDim2.new(0, 12, 0, 0)
 HeaderTitle.BackgroundTransparency = 1
-HeaderTitle.Text = "⚡ FISH RIDERS // GITHUB HUB"
+HeaderTitle.Text = "⚡ FISH RIDERS // V10 100% EGG WORK"
 HeaderTitle.TextColor3 = Color3.fromRGB(0, 255, 170)
-HeaderTitle.TextSize = 12
+HeaderTitle.TextSize = 11
 HeaderTitle.Font = Enum.Font.GothamBold
 HeaderTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Parent = Header
-CloseBtn.Position = UDim2.new(1, -35, 0, 10)
-CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+-- Tombol Close (X)
+local CloseBtn = Instance.new("TextButton", Header)
+CloseBtn.Position = UDim2.new(1, -30, 0, 6)
+CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 60)
 CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.TextSize = 11
+CloseBtn.TextSize = 10
 CloseBtn.Font = Enum.Font.GothamBold
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
 
 CloseBtn.MouseButton1Click:Connect(function()
     pcall(function() ScreenGui:Destroy() end)
 end)
 
--- Container Scroll
-local Container = Instance.new("ScrollingFrame")
-Container.Parent = MainFrame
-Container.Position = UDim2.new(0, 10, 0, 55)
-Container.Size = UDim2.new(1, -20, 1, -65)
-Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 640)
-Container.ScrollBarThickness = 3
+-- Tombol Minimize (-)
+local MinBtn = Instance.new("TextButton", Header)
+MinBtn.Position = UDim2.new(1, -58, 0, 6)
+MinBtn.Size = UDim2.new(0, 22, 0, 22)
+MinBtn.BackgroundColor3 = Color3.fromRGB(220, 140, 20)
+MinBtn.Text = "-"
+MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinBtn.TextSize = 12
+MinBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
 
-local function addSection(titleText, yPos)
-    local lbl = Instance.new("TextLabel")
-    lbl.Parent = Container
-    lbl.Position = UDim2.new(0, 5, 0, yPos)
-    lbl.Size = UDim2.new(1, -10, 0, 20)
+-- Floating Open Button (Saat Di-minimize)
+local OpenBtn = Instance.new("TextButton", ScreenGui)
+OpenBtn.Position = UDim2.new(0, 20, 0.5, -20)
+OpenBtn.Size = UDim2.new(0, 40, 0, 40)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(12, 13, 20)
+OpenBtn.Text = "⚡"
+OpenBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
+OpenBtn.TextSize = 16
+OpenBtn.Font = Enum.Font.GothamBold
+OpenBtn.Visible = false
+OpenBtn.Active = true
+OpenBtn.Draggable = true
+Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 8)
+local OpenStroke = Instance.new("UIStroke", OpenBtn)
+OpenStroke.Color = Color3.fromRGB(0, 255, 170)
+
+MinBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    OpenBtn.Visible = true
+end)
+
+OpenBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    OpenBtn.Visible = false
+end)
+
+-- [ 4. DUA KOLOM MENYAMPING ] --
+local LeftCol = Instance.new("ScrollingFrame", MainFrame)
+LeftCol.Position = UDim2.new(0, 8, 0, 42)
+LeftCol.Size = UDim2.new(0.5, -12, 1, -50)
+LeftCol.BackgroundTransparency = 1
+LeftCol.CanvasSize = UDim2.new(0, 0, 0, 280)
+LeftCol.ScrollBarThickness = 2
+
+local RightCol = Instance.new("ScrollingFrame", MainFrame)
+RightCol.Position = UDim2.new(0.5, 4, 0, 42)
+RightCol.Size = UDim2.new(0.5, -12, 1, -50)
+RightCol.BackgroundTransparency = 1
+RightCol.CanvasSize = UDim2.new(0, 0, 0, 350)
+RightCol.ScrollBarThickness = 2
+
+local function addSection(parent, titleText, yPos)
+    local lbl = Instance.new("TextLabel", parent)
+    lbl.Position = UDim2.new(0, 0, 0, yPos)
+    lbl.Size = UDim2.new(1, 0, 0, 16)
     lbl.BackgroundTransparency = 1
     lbl.Text = titleText
     lbl.TextColor3 = Color3.fromRGB(255, 140, 0)
-    lbl.TextSize = 11
+    lbl.TextSize = 10
     lbl.Font = Enum.Font.GothamBold
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     return lbl
 end
 
-local function addToggle(text, yPos, callback)
-    local Btn = Instance.new("TextButton")
-    Btn.Parent = Container
+local function addToggle(parent, text, yPos, callback)
+    local Btn = Instance.new("TextButton", parent)
     Btn.Position = UDim2.new(0, 0, 0, yPos)
-    Btn.Size = UDim2.new(1, 0, 0, 36)
+    Btn.Size = UDim2.new(1, 0, 0, 28)
     Btn.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
     Btn.Text = "  " .. text
     Btn.TextColor3 = Color3.fromRGB(180, 190, 210)
-    Btn.TextSize = 11
+    Btn.TextSize = 10
     Btn.Font = Enum.Font.GothamBold
     Btn.TextXAlignment = Enum.TextXAlignment.Left
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 8)
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Parent = Btn
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 5)
+    local Stroke = Instance.new("UIStroke", Btn)
     Stroke.Color = Color3.fromRGB(40, 45, 70)
 
-    local Badge = Instance.new("TextLabel")
-    Badge.Parent = Btn
-    Badge.Position = UDim2.new(1, -60, 0, 7)
-    Badge.Size = UDim2.new(0, 50, 0, 22)
+    local Badge = Instance.new("TextLabel", Btn)
+    Badge.Position = UDim2.new(1, -45, 0, 4)
+    Badge.Size = UDim2.new(0, 38, 0, 20)
     Badge.BackgroundColor3 = Color3.fromRGB(40, 20, 30)
     Badge.Text = "OFF"
     Badge.TextColor3 = Color3.fromRGB(255, 70, 90)
-    Badge.TextSize = 10
+    Badge.TextSize = 9
     Badge.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", Badge).CornerRadius = UDim.new(0, 5)
+    Instance.new("UICorner", Badge).CornerRadius = UDim.new(0, 4)
 
     local active = false
     Btn.MouseButton1Click:Connect(function()
@@ -174,31 +204,31 @@ local function addToggle(text, yPos, callback)
     end)
 end
 
--- [ 4. DAFTAR TOMBOL MENU ] --
-addSection("✦ AUTO FARMING & EVENT", 5)
-addToggle("🎃 Auto Collect Pumpkin (Labu)", 30, function(s) isAutoPumpkin = s end)
-addToggle("🥚 Auto Collect Eggs (Telur)", 75, function(s) isAutoEgg = s end)
-addToggle("💰 Auto Collect Coins & Gems", 120, function(s) isAutoCoin = s end)
+-- Isi Kolom Kiri
+addSection(LeftCol, "✦ AUTO FARM & EVENT", 2)
+addToggle(LeftCol, "🎃 Auto Pumpkin", 20, function(s) isAutoPumpkin = s end)
+addToggle(LeftCol, "🥚 Auto Eggs (100% Work)", 52, function(s) isAutoEgg = s end)
+addToggle(LeftCol, "💰 Auto Coins/Gems", 84, function(s) isAutoCoin = s end)
 
-addSection("✦ VISUAL & WORLD ESP", 165)
-addToggle("👁️ ESP Pumpkin & Eggs", 190, function(s) isESPActive = s end)
-addToggle("🔭 Infinite Zoom Out", 235, function(s) isInfZoom = s end)
+addSection(LeftCol, "✦ VISUAL", 120)
+addToggle(LeftCol, "👁️ ESP Pumpkin/Egg", 138, function(s) isESPActive = s end)
+addToggle(LeftCol, "🔭 Infinite Zoom", 170, function(s) isInfZoom = s end)
 
-addSection("✦ PLAYER & SPEED ENHANCEMENTS", 280)
-addToggle("🛡️ God Mode (Kebal Darah)", 305, function(s) isGodMode = s end)
-addToggle("🚀 Infinite Jump (Terbang)", 350, function(s) isInfJump = s end)
-addToggle("👻 Noclip (Tembus Dinding)", 395, function(s) isNoclip = s end)
+-- Isi Kolom Kanan
+addSection(RightCol, "✦ PLAYER", 2)
+addToggle(RightCol, "🛡️ God Mode", 20, function(s) isGodMode = s end)
+addToggle(RightCol, "🚀 Inf Jump", 52, function(s) isInfJump = s end)
+addToggle(RightCol, "👻 Noclip", 84, function(s) isNoclip = s end)
 
-local SafeBtn = Instance.new("TextButton")
-SafeBtn.Parent = Container
-SafeBtn.Position = UDim2.new(0, 0, 0, 440)
-SafeBtn.Size = UDim2.new(1, 0, 0, 36)
+local SafeBtn = Instance.new("TextButton", RightCol)
+SafeBtn.Position = UDim2.new(0, 0, 0, 116)
+SafeBtn.Size = UDim2.new(1, 0, 0, 28)
 SafeBtn.BackgroundColor3 = Color3.fromRGB(180, 100, 20)
-SafeBtn.Text = "🏠 Teleport to Safe Zone / Spawn"
+SafeBtn.Text = "🏠 Safe Zone Teleport"
 SafeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SafeBtn.TextSize = 11
+SafeBtn.TextSize = 10
 SafeBtn.Font = Enum.Font.GothamBold
-Instance.new("UICorner", SafeBtn).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", SafeBtn).CornerRadius = UDim.new(0, 5)
 
 SafeBtn.MouseButton1Click:Connect(function()
     pcall(function()
@@ -209,29 +239,27 @@ SafeBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
-local function addSpeedInput(placeholder, yPos, callback)
-    local Box = Instance.new("TextBox")
-    Box.Parent = Container
+local function addSpeedInput(parent, placeholder, yPos, callback)
+    local Box = Instance.new("TextBox", parent)
     Box.Position = UDim2.new(0, 0, 0, yPos)
-    Box.Size = UDim2.new(0.65, -5, 0, 36)
+    Box.Size = UDim2.new(0.65, -3, 0, 24)
     Box.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
     Box.PlaceholderText = placeholder
     Box.Text = ""
     Box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Box.TextSize = 11
+    Box.TextSize = 10
     Box.Font = Enum.Font.Gotham
-    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
 
-    local Btn = Instance.new("TextButton")
-    Btn.Parent = Container
-    Btn.Position = UDim2.new(0.65, 5, 0, yPos)
-    Btn.Size = UDim2.new(0.35, -5, 0, 36)
+    local Btn = Instance.new("TextButton", parent)
+    Btn.Position = UDim2.new(0.65, 3, 0, yPos)
+    Btn.Size = UDim2.new(0.35, -3, 0, 24)
     Btn.BackgroundColor3 = Color3.fromRGB(0, 255, 170)
     Btn.Text = "Set"
     Btn.TextColor3 = Color3.fromRGB(0, 0, 0)
-    Btn.TextSize = 11
+    Btn.TextSize = 10
     Btn.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
 
     Btn.MouseButton1Click:Connect(function()
         pcall(function()
@@ -241,39 +269,14 @@ local function addSpeedInput(placeholder, yPos, callback)
     end)
 end
 
-addSection("✦ WALK, SWIM & FISH SPEED", 485)
+addSection(RightCol, "✦ SPEED", 150)
+addSpeedInput(RightCol, "Walk (Cth: 32)", 168, function(v) walkSpeedVal = v end)
+addSpeedInput(RightCol, "Swim (Cth: 50)", 196, function(v) swimSpeedVal = v end)
+addSpeedInput(RightCol, "Fish (Cth: 100)", 224, function(v) fishSpeedVal = v end)
 
-local l1 = Instance.new("TextLabel", Container)
-l1.Position = UDim2.new(0, 0, 0, 510)
-l1.Size = UDim2.new(1, 0, 0, 15)
-l1.BackgroundTransparency = 1
-l1.Text = "Walk Speed:"
-l1.TextColor3 = Color3.fromRGB(180, 190, 210)
-l1.TextSize = 10
-l1.Font = Enum.Font.Gotham
-addSpeedInput("Cth: 32", 530, function(v) walkSpeedVal = v end)
-
-local l2 = Instance.new("TextLabel", Container)
-l2.Position = UDim2.new(0, 0, 0, 570)
-l2.Size = UDim2.new(1, 0, 0, 15)
-l2.BackgroundTransparency = 1
-l2.Text = "Swim Speed:"
-l2.TextColor3 = Color3.fromRGB(180, 190, 210)
-l2.TextSize, l2.Font = 10, Enum.Font.Gotham
-addSpeedInput("Cth: 50", 590, function(v) swimSpeedVal = v end)
-
-local l3 = Instance.new("TextLabel", Container)
-l3.Position = UDim2.new(0, 0, 0, 630)
-l3.Size = UDim2.new(1, 0, 0, 15)
-l3.BackgroundTransparency = 1
-l3.Text = "Fish Ride Speed:"
-l3.TextColor3 = Color3.fromRGB(180, 190, 210)
-l3.TextSize, l3.Font = 10, Enum.Font.Gotham
-addSpeedInput("Cth: 100", 650, function(v) fishSpeedVal = v end)
-
--- [ 5. LOGIKA EKSEKUSI ] --
+-- [ 5. 100% WORK EGG & ITEM FARMING LOGIC ] --
 task.spawn(function()
-    while task.wait(0.4) do
+    while task.wait(0.3) do
         pcall(function()
             if not isAutoPumpkin and not isAutoEgg and not isAutoCoin then return end
             local char = Player.Character
@@ -281,6 +284,7 @@ task.spawn(function()
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if not hrp then return end
             
+            -- Menggunakan GetDescendants agar mendeteksi telur di dalam folder/model sekecil apa pun di map
             for _, obj in pairs(Workspace:GetDescendants()) do
                 pcall(function()
                     if obj and (obj:IsA("BasePart") or obj:IsA("Model")) then
@@ -289,12 +293,12 @@ task.spawn(function()
                         
                         if targetPart and targetPart:IsA("BasePart") then
                             local match = false
-                            if isAutoPumpkin and (name:find("pumpkin") or name:find("labu") or name:find("event")) then
+                            if isAutoPumpkin and (name:find("pumpkin") or name:find("labu") or name:find("event")) then 
                                 match = true
-                            elseif isAutoEgg and (name:find("egg") or name:find("telur")) then
+                            elseif isAutoEgg and (name:find("egg") or name:find("telur") or name:find("nest")) then 
                                 match = true
-                            elseif isAutoCoin and (name:find("coin") or name:find("gem") or name:find("cash") or name:find("gold")) then
-                                match = true
+                            elseif isAutoCoin and (name:find("coin") or name:find("gem") or name:find("cash") or name:find("gold")) then 
+                                match = true 
                             end
                             
                             if match then
@@ -309,27 +313,25 @@ task.spawn(function()
     end
 end)
 
+-- ESP Optimal
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(3) do
         pcall(function()
             for _, obj in pairs(Workspace:GetDescendants()) do
                 pcall(function()
                     if isESPActive and (obj:IsA("BasePart") or obj:IsA("Model")) then
                         local name = obj.Name:lower()
-                        if name:find("pumpkin") or name:find("labu") or name:find("egg") or name:find("telur") then
+                        if name:find("pumpkin") or name:find("labu") or name:find("egg") or name:find("telur") or name:find("nest") then
                             local target = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
                             if target and not target:FindFirstChild("CyberHighlight") then
-                                local hl = Instance.new("Highlight")
+                                local hl = Instance.new("Highlight", target)
                                 hl.Name = "CyberHighlight"
-                                hl.Parent = target
                                 hl.FillColor = Color3.fromRGB(0, 255, 170)
                                 hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                             end
                         end
                     elseif not isESPActive then
-                        if obj.Name == "CyberHighlight" then
-                            obj:Destroy()
-                        end
+                        if obj.Name == "CyberHighlight" then obj:Destroy() end
                     end
                 end)
             end
@@ -371,11 +373,7 @@ RunService.Heartbeat:Connect(function()
 
         if isNoclip then
             for _, part in pairs(char:GetDescendants()) do
-                pcall(function()
-                    if part and part:IsA("BasePart") then 
-                        part.CanCollide = false 
-                    end
-                end)
+                if part and part:IsA("BasePart") then part.CanCollide = false end
             end
         end
     end)
@@ -385,11 +383,9 @@ UserInputService.JumpRequest:Connect(function()
     pcall(function()
         if isInfJump and Player.Character then
             local hum = Player.Character:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
         end
     end)
 end)
 
-print("⚡ Cyber Hub V6.1 GitHub Loaded Successfully!")
+print("⚡ Cyber Hub V10 Egg & Item Farmer Loaded 100% Work!")
