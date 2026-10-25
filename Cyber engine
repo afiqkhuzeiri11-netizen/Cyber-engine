@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE V11 - REAL EGG COLLECTION & ANTI-BAN ]] --
+-- [[ CYBER ENGINE V14 - RARITY SELECTOR & SECURITY HUB ]] --
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -7,33 +7,51 @@ local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local Player = Players.LocalPlayer
 
--- [ 1. STRONG ANTI-KICK & ANTI-BAN BYPASS ] --
+-- [ 1. ADVANCED TRIPLE-LAYER ANTI-KICK & ANTI-BAN BYPASS ] --
 pcall(function()
     local mt = getrawmetatable(game)
     setreadonly(mt, false)
     local oldNamecall = mt.__namecall
+    local oldIndex = mt.__index
+
     mt.__namecall = newcclosure(function(self, ...)
         local method = getnamecallmethod()
-        if method and method:lower() == "kick" and self == Player then
-            return nil
+        if method then
+            local lowerMethod = method:lower()
+            if (lowerMethod == "kick" or lowerMethod == "breakjoints") and self == Player then
+                return nil
+            end
         end
         return oldNamecall(self, ...)
     end)
+
+    mt.__index = newcclosure(function(self, index)
+        if not checkcaller() and self == Player and (index == "WalkSpeed" or index == "CFrame") then
+            return 16 
+        end
+        return oldIndex(self, index)
+    end)
+
     setreadonly(mt, true)
 end)
 
--- [ 2. GUI PARENTING ] --
+-- [ 2. MULTI-PATH GUI PARENTING & CLEANUP ] --
 local TargetParent = CoreGui
 pcall(function()
-    if gethui then TargetParent = gethui()
-    elseif Player:FindFirstChild("PlayerGui") then TargetParent = Player.PlayerGui end
+    if gethui then 
+        TargetParent = gethui()
+    elseif Player:FindFirstChild("PlayerGui") then 
+        TargetParent = Player.PlayerGui 
+    end
 end)
 
 pcall(function()
-    if TargetParent:FindFirstChild("CyberHubV11") then TargetParent.CyberHubV11:Destroy() end
+    if TargetParent:FindFirstChild("CyberHubV14") then 
+        TargetParent.CyberHubV14:Destroy() 
+    end
 end)
 
--- Status Fitur
+-- Status Fitur & Variabel Rarity Telur
 local isAutoPumpkin = false
 local isAutoEgg = false
 local isAutoCoin = false
@@ -47,12 +65,28 @@ local walkSpeedVal = 16
 local swimSpeedVal = 16
 local fishSpeedVal = 50
 
--- Tabel Penyimpanan Objek yang Sudah Diambil (Mencegah Infinite Teleport)
+-- Pilihan Rarity Telur (Default: "All" / Semua)
+local selectedEggRarity = "all" 
+
 local farmedCache = {}
 
--- [ 3. TAMPILAN GUI KOMPAK MENYAMPING ] --
+-- Auto Garbage Collector (Pembersih Memori Supaya HP Tidak Lag/Panas)
+task.spawn(function()
+    while task.wait(30) do
+        pcall(function()
+            local now = tick()
+            for obj, timestamp in pairs(farmedCache) do
+                if now - timestamp > 15 then
+                    farmedCache[obj] = nil
+                end
+            end
+        end)
+    end
+end)
+
+-- [ 3. TAMPILAN GUI SIDE-BY-SIDE (HORIZONTAL 2 KOLOM) ] --
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CyberHubV11"
+ScreenGui.Name = "CyberHubV14"
 ScreenGui.Parent = TargetParent
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
@@ -60,7 +94,7 @@ ScreenGui.ResetOnSpawn = false
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 13, 20)
 MainFrame.Position = UDim2.new(0.5, -240, 0.2, 0)
-MainFrame.Size = UDim2.new(0, 480, 0, 310)
+MainFrame.Size = UDim2.new(0, 480, 0, 335)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
@@ -69,7 +103,7 @@ local UIStroke = Instance.new("UIStroke", MainFrame)
 UIStroke.Color = Color3.fromRGB(0, 255, 170)
 UIStroke.Thickness = 1.5
 
--- Header
+-- Header Top Bar
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 35)
 Header.BackgroundColor3 = Color3.fromRGB(20, 22, 32)
@@ -79,7 +113,7 @@ local HeaderTitle = Instance.new("TextLabel", Header)
 HeaderTitle.Size = UDim2.new(1, -80, 1, 0)
 HeaderTitle.Position = UDim2.new(0, 12, 0, 0)
 HeaderTitle.BackgroundTransparency = 1
-HeaderTitle.Text = "⚡ FISH RIDERS // V11 SAFE FARM"
+HeaderTitle.Text = "⚡ FISH RIDERS // V14 RARITY SELECTOR"
 HeaderTitle.TextColor3 = Color3.fromRGB(0, 255, 170)
 HeaderTitle.TextSize = 11
 HeaderTitle.Font = Enum.Font.GothamBold
@@ -111,7 +145,7 @@ MinBtn.TextSize = 12
 MinBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
 
--- Floating Open Button (Saat Di-minimize)
+-- Floating Open Button (Ikon Petir Saat Di-minimize)
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Position = UDim2.new(0, 20, 0.5, -20)
 OpenBtn.Size = UDim2.new(0, 40, 0, 40)
@@ -137,12 +171,12 @@ OpenBtn.MouseButton1Click:Connect(function()
     OpenBtn.Visible = false
 end)
 
--- [ 4. DUA KOLOM MENYAMPING ] --
+-- [ 4. CONTAINER DUA KOLOM MENYAMPING ] --
 local LeftCol = Instance.new("ScrollingFrame", MainFrame)
 LeftCol.Position = UDim2.new(0, 8, 0, 42)
 LeftCol.Size = UDim2.new(0.5, -12, 1, -50)
 LeftCol.BackgroundTransparency = 1
-LeftCol.CanvasSize = UDim2.new(0, 0, 0, 280)
+LeftCol.CanvasSize = UDim2.new(0, 0, 0, 390)
 LeftCol.ScrollBarThickness = 2
 
 local RightCol = Instance.new("ScrollingFrame", MainFrame)
@@ -207,198 +241,54 @@ local function addToggle(parent, text, yPos, callback)
     end)
 end
 
--- Isi Kolom Kiri
+-- Isi Kolom Kiri: Auto Farm & Pemilih Rarity Telur
 addSection(LeftCol, "✦ AUTO FARM & EVENT", 2)
 addToggle(LeftCol, "🎃 Auto Pumpkin", 20, function(s) isAutoPumpkin = s end)
-addToggle(LeftCol, "🥚 Auto Eggs (Fixed)", 52, function(s) isAutoEgg = s end)
+addToggle(LeftCol, "🥚 Auto Eggs (Filtered)", 52, function(s) isAutoEgg = s end)
 addToggle(LeftCol, "💰 Auto Coins/Gems", 84, function(s) isAutoCoin = s end)
 
-addSection(LeftCol, "✦ VISUAL", 120)
-addToggle(LeftCol, "👁️ ESP Pumpkin/Egg", 138, function(s) isESPActive = s end)
-addToggle(LeftCol, "🔭 Infinite Zoom", 170, function(s) isInfZoom = s end)
+addSection(LeftCol, "✦ EGG RARITY FILTER", 120)
 
--- Isi Kolom Kanan
-addSection(RightCol, "✦ PLAYER", 2)
-addToggle(RightCol, "🛡️ God Mode", 20, function(s) isGodMode = s end)
-addToggle(RightCol, "🚀 Inf Jump", 52, function(s) isInfJump = s end)
-addToggle(RightCol, "👻 Noclip", 84, function(s) isNoclip = s end)
+-- Tombol Pilihan Rarity Telur
+local rarities = {"All", "Common", "Rare", "Epic", "Legendary", "Mythic"}
+local currentRarityY = 138
 
-local SafeBtn = Instance.new("TextButton", RightCol)
-SafeBtn.Position = UDim2.new(0, 0, 0, 116)
-SafeBtn.Size = UDim2.new(1, 0, 0, 28)
-SafeBtn.BackgroundColor3 = Color3.fromRGB(180, 100, 20)
-SafeBtn.Text = "🏠 Safe Zone Teleport"
-SafeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SafeBtn.TextSize = 10
-SafeBtn.Font = Enum.Font.GothamBold
-Instance.new("UICorner", SafeBtn).CornerRadius = UDim.new(0, 5)
+for _, rarityName in ipairs(rarities) do
+    local RarityBtn = Instance.new("TextButton", LeftCol)
+    RarityBtn.Position = UDim2.new(0, 0, 0, currentRarityY)
+    RarityBtn.Size = UDim2.new(1, 0, 0, 24)
+    RarityBtn.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
+    RarityBtn.Text = "  🎯 Rarity: " .. rarityName
+    RarityBtn.TextColor3 = Color3.fromRGB(180, 190, 210)
+    RarityBtn.TextSize = 9
+    RarityBtn.Font = Enum.Font.GothamBold
+    RarityBtn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", RarityBtn).CornerRadius = UDim.new(0, 4)
+    local RStroke = Instance.new("UIStroke", RarityBtn)
+    RStroke.Color = Color3.fromRGB(40, 45, 70)
 
-SafeBtn.MouseButton1Click:Connect(function()
-    pcall(function()
-        local char = Player.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CFrame = CFrame.new(0, 15, 0)
+    if rarityName:lower() == selectedEggRarity then
+        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
+        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
+        RStroke.Color = Color3.fromRGB(0, 255, 170)
+    end
+
+    RarityBtn.MouseButton1Click:Connect(function()
+        selectedEggRarity = rarityName:lower()
+        for _, child in pairs(LeftCol:GetChildren()) do
+            if child:IsA("TextButton") and child.Text:find("Rarity:") then
+                child.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
+                child.TextColor3 = Color3.fromRGB(180, 190, 210)
+                local st = child:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(40, 45, 70) end
+            end
         end
+        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
+        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
+        RStroke.Color = Color3.fromRGB(0, 255, 170)
     end)
-end)
 
-local function addSpeedInput(parent, placeholder, yPos, callback)
-    local Box = Instance.new("TextBox", parent)
-    Box.Position = UDim2.new(0, 0, 0, yPos)
-    Box.Size = UDim2.new(0.65, -3, 0, 24)
-    Box.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
-    Box.PlaceholderText = placeholder
-    Box.Text = ""
-    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Box.TextSize = 10
-    Box.Font = Enum.Font.Gotham
-    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
-
-    local Btn = Instance.new("TextButton", parent)
-    Btn.Position = UDim2.new(0.65, 3, 0, yPos)
-    Btn.Size = UDim2.new(0.35, -3, 0, 24)
-    Btn.BackgroundColor3 = Color3.fromRGB(0, 255, 170)
-    Btn.Text = "Set"
-    Btn.TextColor3 = Color3.fromRGB(0, 0, 0)
-    Btn.TextSize = 10
-    Btn.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
-
-    Btn.MouseButton1Click:Connect(function()
-        pcall(function()
-            local val = tonumber(Box.Text)
-            if val then callback(val) end
-        end)
-    end)
+    currentRarityY = currentRarityY + 28
 end
 
-addSection(RightCol, "✦ SPEED", 150)
-addSpeedInput(RightCol, "Walk (Cth: 32)", 168, function(v) walkSpeedVal = v end)
-addSpeedInput(RightCol, "Swim (Cth: 50)", 196, function(v) swimSpeedVal = v end)
-addSpeedInput(RightCol, "Fish (Cth: 100)", 224, function(v) fishSpeedVal = v end)
-
--- [ 5. ANTI-BAN EGG & ITEM FARMING DENGAN TOUCH INTEREST ] --
-task.spawn(function()
-    while task.wait(0.8) do -- Diperlambat agar tidak terdeteksi anti-cheat ban
-        pcall(function()
-            if not isAutoPumpkin and not isAutoEgg and not isAutoCoin then return end
-            local char = Player.Character
-            if not char then return end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
-            
-            for _, obj in pairs(Workspace:GetDescendants()) do
-                pcall(function()
-                    if obj and (obj:IsA("BasePart") or obj:IsA("Model")) then
-                        local name = obj.Name:lower()
-                        local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                        
-                        if targetPart and targetPart:IsA("BasePart") then
-                            local match = false
-                            if isAutoPumpkin and (name:find("pumpkin") or name:find("labu") or name:find("event")) then match = true
-                            elseif isAutoEgg and (name:find("egg") or name:find("telur") or name:find("nest")) then match = true
-                            elseif isAutoCoin and (name:find("coin") or name:find("gem") or name:find("cash") or name:find("gold")) then match = true end
-                            
-                            if match then
-                                -- Cek apakah objek sudah pernah diambil baru-baru ini (mencegah infinite loop)
-                                if not farmedCache[targetPart] or (tick() - farmedCache[targetPart] > 4) then
-                                    farmedCache[targetPart] = tick()
-                                    
-                                    -- Teleport mendekati item
-                                    hrp.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
-                                    task.wait(0.2)
-                                    
-                                    -- Simulasi sentuhan agar game menghitung item berhasil diambil
-                                    pcall(function()
-                                        firetouchinterest(hrp, targetPart, 0)
-                                        task.wait(0.05)
-                                        firetouchinterest(hrp, targetPart, 1)
-                                    end)
-                                    
-                                    task.wait(0.3)
-                                end
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
--- ESP Optimal
-task.spawn(function()
-    while task.wait(4) do
-        pcall(function()
-            for _, obj in pairs(Workspace:GetDescendants()) do
-                pcall(function()
-                    if isESPActive and (obj:IsA("BasePart") or obj:IsA("Model")) then
-                        local name = obj.Name:lower()
-                        if name:find("pumpkin") or name:find("labu") or name:find("egg") or name:find("telur") or name:find("nest") then
-                            local target = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if target and not target:FindFirstChild("CyberHighlight") then
-                                local hl = Instance.new("Highlight", target)
-                                hl.Name = "CyberHighlight"
-                                hl.FillColor = Color3.fromRGB(0, 255, 170)
-                                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            end
-                        end
-                    elseif not isESPActive then
-                        if obj.Name == "CyberHighlight" then obj:Destroy() end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    pcall(function()
-        local char = Player.Character
-        if not char then return end
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        
-        if hum then
-            if hum:GetState() == Enum.HumanoidStateType.Swimming then
-                hum.WalkSpeed = swimSpeedVal
-            else
-                hum.WalkSpeed = walkSpeedVal
-            end
-
-            if isGodMode then hum.Health = hum.MaxHealth end
-        end
-
-        if isInfZoom then
-            Player.CameraMaxZoomDistance = 999999
-        else
-            Player.CameraMaxZoomDistance = 400
-        end
-
-        for _, obj in pairs(Workspace:GetDescendants()) do
-            pcall(function()
-                if obj and (obj:IsA("VehicleSeat") or obj:IsA("Seat")) then
-                    if hum and obj.Occupant == hum then
-                        obj.AssemblyLinearVelocity = obj.CFrame.LookVector * fishSpeedVal
-                    end
-                end
-            end)
-        end
-
-        if isNoclip then
-            for _, part in pairs(char:GetDescendants()) do
-                if part and part:IsA("BasePart") then part.CanCollide = false end
-            end
-        end
-    end)
-end)
-
-UserInputService.JumpRequest:Connect(function()
-    pcall(function()
-        if isInfJump and Player.Character then
-            local hum = Player.Character:FindFirstChildOfClass("Humanoid")
-            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
-        end
-    end)
-end)
-
-print("⚡ Cyber Hub V11 Anti-Ban & Touch Interest Loaded!")
+addSection(LeftCol, "✦
