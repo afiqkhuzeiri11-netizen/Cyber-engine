@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE V14 - RARITY SELECTOR & SECURITY HUB ]] --
+-- [[ CYBER ENGINE V14.1 - FORCE GUI RENDER & RARITY FILTER ]] --
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -7,7 +7,7 @@ local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local Player = Players.LocalPlayer
 
--- [ 1. ADVANCED TRIPLE-LAYER ANTI-KICK & ANTI-BAN BYPASS ] --
+-- [ 1. ADVANCED ANTI-KICK & ANTI-BAN ] --
 pcall(function()
     local mt = getrawmetatable(game)
     setreadonly(mt, false)
@@ -35,23 +35,32 @@ pcall(function()
     setreadonly(mt, true)
 end)
 
--- [ 2. MULTI-PATH GUI PARENTING & CLEANUP ] --
-local TargetParent = CoreGui
-pcall(function()
-    if gethui then 
-        TargetParent = gethui()
-    elseif Player:FindFirstChild("PlayerGui") then 
-        TargetParent = Player.PlayerGui 
-    end
-end)
+-- [ 2. DIRECT GUI PARENTING SAFEGUARD ] --
+local TargetParent = nil
 
+if gethui then
+    pcall(function() TargetParent = gethui() end)
+end
+
+if not TargetParent then
+    pcall(function() TargetParent = CoreGui end)
+end
+
+if not TargetParent then
+    TargetParent = Player:WaitForChild("PlayerGui", 5)
+end
+
+-- Hapus GUI lama jika ada
 pcall(function()
     if TargetParent:FindFirstChild("CyberHubV14") then 
         TargetParent.CyberHubV14:Destroy() 
     end
+    if Player.PlayerGui:FindFirstChild("CyberHubV14") then
+        Player.PlayerGui.CyberHubV14:Destroy()
+    end
 end)
 
--- Status Fitur & Variabel Rarity Telur
+-- Variabel Status
 local isAutoPumpkin = false
 local isAutoEgg = false
 local isAutoCoin = false
@@ -64,13 +73,11 @@ local isInfZoom = false
 local walkSpeedVal = 16
 local swimSpeedVal = 16
 local fishSpeedVal = 50
-
--- Pilihan Rarity Telur (Default: "All" / Semua)
 local selectedEggRarity = "all" 
 
 local farmedCache = {}
 
--- Auto Garbage Collector (Pembersih Memori Supaya HP Tidak Lag/Panas)
+-- Auto Garbage Collector
 task.spawn(function()
     while task.wait(30) do
         pcall(function()
@@ -84,7 +91,7 @@ task.spawn(function()
     end
 end)
 
--- [ 3. TAMPILAN GUI SIDE-BY-SIDE (HORIZONTAL 2 KOLOM) ] --
+-- [ 3. TAMPILAN GUI ] --
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CyberHubV14"
 ScreenGui.Parent = TargetParent
@@ -113,7 +120,7 @@ local HeaderTitle = Instance.new("TextLabel", Header)
 HeaderTitle.Size = UDim2.new(1, -80, 1, 0)
 HeaderTitle.Position = UDim2.new(0, 12, 0, 0)
 HeaderTitle.BackgroundTransparency = 1
-HeaderTitle.Text = "⚡ FISH RIDERS // V14 RARITY SELECTOR"
+HeaderTitle.Text = "⚡ FISH RIDERS // V14.1 LOADED"
 HeaderTitle.TextColor3 = Color3.fromRGB(0, 255, 170)
 HeaderTitle.TextSize = 11
 HeaderTitle.Font = Enum.Font.GothamBold
@@ -145,7 +152,7 @@ MinBtn.TextSize = 12
 MinBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
 
--- Floating Open Button (Ikon Petir Saat Di-minimize)
+-- Floating Open Button
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Position = UDim2.new(0, 20, 0.5, -20)
 OpenBtn.Size = UDim2.new(0, 40, 0, 40)
@@ -241,7 +248,7 @@ local function addToggle(parent, text, yPos, callback)
     end)
 end
 
--- Isi Kolom Kiri: Auto Farm & Pemilih Rarity Telur
+-- Isi Kolom Kiri
 addSection(LeftCol, "✦ AUTO FARM & EVENT", 2)
 addToggle(LeftCol, "🎃 Auto Pumpkin", 20, function(s) isAutoPumpkin = s end)
 addToggle(LeftCol, "🥚 Auto Eggs (Filtered)", 52, function(s) isAutoEgg = s end)
@@ -249,46 +256,10 @@ addToggle(LeftCol, "💰 Auto Coins/Gems", 84, function(s) isAutoCoin = s end)
 
 addSection(LeftCol, "✦ EGG RARITY FILTER", 120)
 
--- Tombol Pilihan Rarity Telur
 local rarities = {"All", "Common", "Rare", "Epic", "Legendary", "Mythic"}
 local currentRarityY = 138
 
 for _, rarityName in ipairs(rarities) do
     local RarityBtn = Instance.new("TextButton", LeftCol)
     RarityBtn.Position = UDim2.new(0, 0, 0, currentRarityY)
-    RarityBtn.Size = UDim2.new(1, 0, 0, 24)
-    RarityBtn.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
-    RarityBtn.Text = "  🎯 Rarity: " .. rarityName
-    RarityBtn.TextColor3 = Color3.fromRGB(180, 190, 210)
-    RarityBtn.TextSize = 9
-    RarityBtn.Font = Enum.Font.GothamBold
-    RarityBtn.TextXAlignment = Enum.TextXAlignment.Left
-    Instance.new("UICorner", RarityBtn).CornerRadius = UDim.new(0, 4)
-    local RStroke = Instance.new("UIStroke", RarityBtn)
-    RStroke.Color = Color3.fromRGB(40, 45, 70)
-
-    if rarityName:lower() == selectedEggRarity then
-        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
-        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
-        RStroke.Color = Color3.fromRGB(0, 255, 170)
-    end
-
-    RarityBtn.MouseButton1Click:Connect(function()
-        selectedEggRarity = rarityName:lower()
-        for _, child in pairs(LeftCol:GetChildren()) do
-            if child:IsA("TextButton") and child.Text:find("Rarity:") then
-                child.BackgroundColor3 = Color3.fromRGB(22, 24, 38)
-                child.TextColor3 = Color3.fromRGB(180, 190, 210)
-                local st = child:FindFirstChildOfClass("UIStroke")
-                if st then st.Color = Color3.fromRGB(40, 45, 70) end
-            end
-        end
-        RarityBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 35)
-        RarityBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
-        RStroke.Color = Color3.fromRGB(0, 255, 170)
-    end)
-
-    currentRarityY = currentRarityY + 28
-end
-
-addSection(LeftCol, "✦
+    RarityBtn.Size = UDim2.new(1, 0, 0, 2
